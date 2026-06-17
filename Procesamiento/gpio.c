@@ -1,61 +1,109 @@
-// =============================================================
-// gpio.c - Capa de Dispositivos: GPIO
-//
-// Configura P0.0 (DATA), P0.1 (CLK) y P0.2 (CS) como salidas
-// digitales simples para bit-banging con el MAX7219.
-//
-// Por que PINSEL_FUNC_00?
-//   Porque queremos GPIO puro. Si pusieramos FUNC_01/02/03
-//   el pin quedaria asignado a un periferico (SPI, UART, etc)
-//   y no podriamos controlarlo manualmente.
-//
-// Por que TRISTATE?
-//   Porque estos pines son SALIDAS. El pull-up/pull-down solo
-//   importa en entradas (para definir el nivel cuando nadie
-//   maneja el pin). Como salida, el micro maneja el nivel solo.
-//
-// Por que no open-drain?
-//   Open-drain solo puede poner el pin en bajo o dejarlo flotando.
-//   Necesitamos poder poner el pin en alto Y en bajo -> normal.
-// =============================================================
+/*
+ * GPIO.c
+ *
+ *  Created on: 10 jun. 2026
+ *      Author: VICTUS
+ */
+#ifdef __USE_CMSIS
+#include "LPC17xx.h"
+#endif
 
-#include "gpio.h"
 
-void GPIO_MAX7219_Init(void)
+#include "GPIO.h"
+
+void cfgGPIO(void)
 {
-    PINSEL_CFG_T pinCfg;
-    pinCfg.port      = GPIO_MAX_PORT;
-    pinCfg.func      = PINSEL_FUNC_00;  // GPIO, sin funcion alternativa
-    pinCfg.mode      = PINSEL_TRISTATE; // salida: no necesita pull
-    pinCfg.openDrain = DISABLE;         // salida normal
+	cfg_GPIO_MAX7219();
+    cfgADC_Pin();
 
-    // Configurar DATA
-    pinCfg.pin = GPIO_DATA_PIN;
-    PINSEL_ConfigPin(&pinCfg);
-
-    // Configurar CLK
-    pinCfg.pin = GPIO_CLK_PIN;
-    PINSEL_ConfigPin(&pinCfg);
-
-    // Configurar CS
-    pinCfg.pin = GPIO_CS_PIN;
-    PINSEL_ConfigPin(&pinCfg);
-
-    // Todos como salidas digitales
-    GPIO_SetDir(GPIO_MAX_PORT,
-                GPIO_DATA_MASK | GPIO_CLK_MASK | GPIO_CS_MASK,
-                GPIO_OUTPUT);
-
-    // Estado inicial seguro:
-    GPIO_SetPins  (GPIO_MAX_PORT, GPIO_CS_MASK);   // CS alto = inactivo
-    GPIO_ClearPins(GPIO_MAX_PORT, GPIO_CLK_MASK);  // CLK bajo = reposo
-    GPIO_ClearPins(GPIO_MAX_PORT, GPIO_DATA_MASK); // DATA bajo = reposo
+    return;
 }
 
-// Wrappers simples para que max7219.c sea mas legible
-void GPIO_DATA_High(void) { GPIO_SetPins  (GPIO_MAX_PORT, GPIO_DATA_MASK); }
-void GPIO_DATA_Low(void)  { GPIO_ClearPins(GPIO_MAX_PORT, GPIO_DATA_MASK); }
-void GPIO_CLK_High(void)  { GPIO_SetPins  (GPIO_MAX_PORT, GPIO_CLK_MASK);  }
-void GPIO_CLK_Low(void)   { GPIO_ClearPins(GPIO_MAX_PORT, GPIO_CLK_MASK);  }
-void GPIO_CS_High(void)   { GPIO_SetPins  (GPIO_MAX_PORT, GPIO_CS_MASK);   }
-void GPIO_CS_Low(void)    { GPIO_ClearPins(GPIO_MAX_PORT, GPIO_CS_MASK);   }
+/*====================================================
+ * MAX7219
+ *===================================================*/
+
+void cfg_GPIO_MAX7219(void)
+{
+    PINSEL_CFG_Type cfgMAX;
+
+    cfgMAX.Portnum   = PINSEL_PORT_0;
+    cfgMAX.Funcnum   = PINSEL_FUNC_0;
+    cfgMAX.Pinmode   = PINSEL_PINMODE_TRISTATE;
+    cfgMAX.OpenDrain = PINSEL_PINMODE_NORMAL;
+
+    /* DATA */
+
+    cfgMAX.Pinnum = PINSEL_PIN_0;
+    PINSEL_ConfigPin(&cfgMAX);
+
+    /* CLOCK */
+
+    cfgMAX.Pinnum = PINSEL_PIN_1;
+    PINSEL_ConfigPin(&cfgMAX);
+
+    /* LOAD */
+
+    cfgMAX.Pinnum = PINSEL_PIN_2;
+    PINSEL_ConfigPin(&cfgMAX);
+
+    GPIO_SetDir(
+    		PINSEL_PORT_0,
+        MAX7219_DATA_MASK |
+        MAX7219_CLOCK_MASK |
+        MAX7219_LOAD_MASK,
+        1 );
+
+    return;
+ }
+
+  void GPIO_MAX7219_DataAlto(void)
+    {
+        GPIO_SetValue(MAX7219_PORT, MAX7219_DATA_MASK);
+    }
+
+    void GPIO_MAX7219_DataBajo(void)
+    {
+        GPIO_ClearValue(MAX7219_PORT, MAX7219_DATA_MASK);
+    }
+
+    void GPIO_MAX7219_ClockAlto(void)
+    {
+        GPIO_SetValue(MAX7219_PORT, MAX7219_CLOCK_MASK);
+    }
+
+    void GPIO_MAX7219_ClockBajo(void)
+    {
+        GPIO_ClearValue(MAX7219_PORT, MAX7219_CLOCK_MASK);
+    }
+
+    void GPIO_MAX7219_LoadAlto(void)
+    {
+        GPIO_SetValue(MAX7219_PORT, MAX7219_LOAD_MASK);
+    }
+
+    void GPIO_MAX7219_LoadBajo(void)
+    {
+        GPIO_ClearValue(MAX7219_PORT, MAX7219_LOAD_MASK);
+    }
+
+
+/*====================================================
+ * Entrada de Audio
+ * P0.23 -> AD0.0
+ *===================================================*/
+
+void cfgADC_Pin(void)
+{
+    PINSEL_CFG_Type cfgADC;
+
+    cfgADC.Portnum   = PINSEL_PORT_0;
+    cfgADC.Pinnum    = PINSEL_PIN_23;
+    cfgADC.Funcnum   = PINSEL_FUNC_1;
+    cfgADC.Pinmode   = PINSEL_PINMODE_TRISTATE;
+    cfgADC.OpenDrain = PINSEL_PINMODE_NORMAL;
+
+    PINSEL_ConfigPin(&cfgADC);
+
+    return;
+}
