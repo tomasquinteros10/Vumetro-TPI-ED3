@@ -43,6 +43,9 @@ void EINT0_IRQHandler(void)
 	LPC_TIM0->TCR = 0x00;
 
 	MAX7219_Clear();
+
+    flag_iniciar = 0;
+    
 	    }
     LPC_SC->EXTINT |= (1 << 0);
     return;

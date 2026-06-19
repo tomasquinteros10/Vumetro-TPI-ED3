@@ -63,33 +63,33 @@ uint8_t Vumetro_GetNivel(void)
  * COMPLETAR CON TU TABLA.
  */
 
-	static float Convertir_mV_a_dB(uint16_t mv)
-	{
-	    if(mv < 700)
-	    {
-	        return 0.0f;
-	    }
-	    else if(mv < 900)
-	    {
-	        return 59.3f;
-	    }
-	    else if(mv < 1000)
-	    {
-	        return 61.0f;
-	    }
-	    else if(mv < 1100)
-	    {
-	        return 65.0f;
-	    }
-	    else if(mv < 1200)
-	    {
-	        return 78.0f;
-	    }
-	    else
-	    {
-	        return 81.0f;
-	    }
-	}
+static float Convertir_mV_a_dB(uint16_t mv)
+{
+    if(mv < 120)
+        return 0.0f;
+    else if(mv < 160)
+        return 68.0f;
+    else if(mv < 200)
+        return 70.2f;
+    else if(mv < 240)
+        return 73.0f;
+    else if(mv < 320)
+        return 75.0f;
+    else if(mv < 400)
+        return 78.0f;
+    else if(mv < 500)
+        return 83.0f;
+    else if(mv < 680)
+        return 86.0f;
+    else if(mv < 960)
+        return 89.0f;
+    else if(mv < 1230)
+        return 93.0f;
+    else if(mv < 1700)
+        return 97.0f;
+    else
+        return 99.0f;
+}
 
 	/**
 	 * @brief Conversión de dB a nivel visual (0 a 16).
@@ -102,19 +102,19 @@ uint8_t Vumetro_GetNivel(void)
 	    }
 	    else if(db < 61.0f)
 	    {
-	        return 4;
+	        return 1;
 	    }
 	    else if(db < 65.0f)
 	    {
-	        return 8;
+	        return 2;
 	    }
 	    else if(db < 78.0f)
 	    {
-	        return 12;
+	        return 8;
 	    }
 	    else if(db < 81.0f)
 	    {
-	        return 15;
+	        return 4;
 	    }
 	    else
 	    {

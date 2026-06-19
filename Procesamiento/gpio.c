@@ -26,11 +26,16 @@ void cfgGPIO(void)
 void cfg_GPIO_MAX7219(void)
 {
     PINSEL_CFG_Type cfgMAX;
+    PINSEL_CFG_Type cfgMAXPIN2;
 
+    cfgMAXPIN2.Portnum   = PINSEL_PORT_0;
+    cfgMAXPIN2.Funcnum   = PINSEL_FUNC_0;
     cfgMAX.Portnum   = PINSEL_PORT_0;
     cfgMAX.Funcnum   = PINSEL_FUNC_0;
     cfgMAX.Pinmode   = PINSEL_PINMODE_TRISTATE;
+    cfgMAXPIN2.Pinmode   = PINSEL_PINMODE_PULLUP;
     cfgMAX.OpenDrain = PINSEL_PINMODE_NORMAL;
+    cfgMAXPIN2.OpenDrain = PINSEL_PINMODE_NORMAL;
 
     /* DATA */
 
@@ -43,16 +48,15 @@ void cfg_GPIO_MAX7219(void)
     PINSEL_ConfigPin(&cfgMAX);
 
     /* LOAD */
-
-    cfgMAX.Pinnum = PINSEL_PIN_2;
-    PINSEL_ConfigPin(&cfgMAX);
+    cfgMAXPIN2.Pinnum = PINSEL_PIN_2;
+       PINSEL_ConfigPin(&cfgMAXPIN2);
 
     GPIO_SetDir(
     		PINSEL_PORT_0,
         MAX7219_DATA_MASK |
         MAX7219_CLOCK_MASK |
         MAX7219_LOAD_MASK,
-        1 );
+        1);
 
     return;
  }

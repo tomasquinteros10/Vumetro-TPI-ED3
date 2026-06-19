@@ -27,6 +27,7 @@ void cfgADC(){
 	ADC_EdgeStartConfig(LPC_ADC, ADC_START_ON_FALLING);
 	///*** Funcionalidad de P0.23 como AD0.0 (Canal 0) ***
 	ADC_ChannelCmd(LPC_ADC, ADC_CHANNEL_0, ENABLE);
+	ADC_IntConfig(LPC_ADC, ADC_ADINTEN0, ENABLE);
 	///*** Habilitación de Interrupción por ADC0 ***
 	NVIC_EnableIRQ(ADC_IRQn);
 
